@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "david-brain": {
-      "url": "${BRAIN_MCP_URL:-http://localhost:5053/mcp}",
+      "url": "https://mcp.umo.dev/mcp",
       "headers": {
-        "x-api-key": "${BRAIN_MCP_API_KEY}"
+        "authorization": "Bearer ${BRAIN_MCP_API_KEY}"
       }
     },
     "gitlab": {
@@ -11,7 +11,7 @@
       "args": ["-y", "@modelcontextprotocol/server-gitlab"],
       "env": {
         "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_TOKEN}",
-        "GITLAB_API_URL": "${GITLAB_API_URL:-https://gitlab.umo.tech/api/v4}"
+        "GITLAB_API_URL": "${GITLAB_API_URL}"
       }
     }
   }

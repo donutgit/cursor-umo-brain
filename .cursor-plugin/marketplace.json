@@ -1,0 +1,17 @@
+{
+  "name": "umo-cursor-plugins",
+  "owner": {
+    "name": "UMO Platform Team",
+    "email": "platform@umo.tech"
+  },
+  "metadata": {
+    "description": "UMO internal Cursor plugins — brain harness, MR review, organizational memory"
+  },
+  "plugins": [
+    {
+      "name": "cursor-umo-brain",
+      "source": "cursor-umo-brain",
+      "description": "DAVID agent harness — brain-first memory protocol, 4-persona MR review, GitLab integration"
+    }
+  ]
+}
