@@ -1,0 +1,20 @@
+{
+  "name": "cursor-umo-brain",
+  "version": "0.1.0",
+  "description": "DAVID agent harness — brain-first organizational memory, MR review personas (code, compliance, security, standards), GitLab integration. Applies brain protocol to every agent session across all repos.",
+  "author": {
+    "name": "UMO Platform Team",
+    "email": "platform@umo.tech"
+  },
+  "keywords": [
+    "david",
+    "brain",
+    "memory",
+    "code-review",
+    "compliance",
+    "security",
+    "gitlab",
+    "organizational-memory"
+  ],
+  "license": "UNLICENSED"
+}

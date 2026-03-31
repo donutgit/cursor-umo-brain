@@ -1,0 +1,42 @@
+---
+description: UMO engineering hard rules — universal coding standards enforced across all TypeScript repositories. Not project-specific — these apply everywhere.
+alwaysApply: true
+---
+
+# Engineering Hard Rules
+
+These apply to all UMO TypeScript codebases.
+
+## Type safety
+
+- No `any` — use `unknown` with type guards, or explicit types
+- Explicit return types on all exported functions
+- Strict mode enabled (`strict: true` in tsconfig)
+
+## Error handling
+
+- No `throw new Error()` in new code — use typed error returns (Effect errors, Result types, or error unions)
+- Never swallow errors silently — always log or propagate
+- CLI scripts are exempt from typed-error requirement (they may throw for user-facing output)
+
+## Logging
+
+- No `console.log`, `console.error`, `console.warn` in committed code
+- Use structured logging (Effect Logger, pino, or the project's chosen logger)
+- Never log sensitive data (PII, tokens, passwords, API keys)
+
+## Config
+
+- No `process.env` in business logic — use config abstraction
+- Secrets come from Vault or env, never hardcoded
+
+## Service communication
+
+- No raw `fetch()` for internal service-to-service calls — use typed clients (ConnectRPC, SDK)
+- REST is acceptable only for: OAuth/OIDC, AI SDK chat, MCP HTTP transport
+
+## Database
+
+- One database per service (not schema isolation)
+- Drizzle ORM only — no Prisma, no Knex, no raw SQL strings with concatenation
+- Never hand-edit migration files — use the migration generator

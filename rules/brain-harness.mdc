@@ -1,0 +1,78 @@
+---
+description: DAVID brain harness — organizational memory protocol. Applies to every agent session in every repo. Ensures agents use recall/remember/feedback for cross-session, cross-team learning.
+alwaysApply: true
+---
+
+# DAVID Brain — Organizational Memory
+
+You have access to DAVID brain — a persistent organizational memory shared across all teams, repos, and sessions. Use it.
+
+## Session start (do this first, every time)
+
+Before any work, recall context relevant to the current task:
+
+```
+david_recall("recent decisions and context for [repo or task topic]")
+```
+
+After every recall, give feedback on each returned memory:
+
+```
+david_feedback(memory_id, helpful: true/false)
+```
+
+## Before decisions
+
+When facing a design choice, unfamiliar code, or an error:
+
+```
+david_recall("[specific question, error message, or pattern]")
+```
+
+Check if the org already solved this. Don't reinvent.
+
+## After completing work
+
+Save what you learned so the next session (yours or someone else's) benefits:
+
+```
+david_remember({
+  type: "<fact|pattern|decision|mistake|achievement|observation>",
+  title: "Descriptive sentence — not a keyword",
+  content: "What happened, what was decided, what was learned",
+  namespace: "<domain>"
+})
+```
+
+### Namespace conventions
+
+| Namespace | Domain |
+|-----------|--------|
+| `global` | Company-wide: architecture, cross-cutting patterns |
+| `david` | DAVID platform project |
+| `payments` | Payment processing, PSPs, settlement |
+| `crypto` | Crypto exchange, wallets, DeFi |
+| `banking` | Core banking, ledger, accounting |
+| `devops` | Infrastructure, Kubernetes, platform |
+| `code-review` | Code review findings and patterns |
+| `compliance` | VARA, ISO 27001, SOC 2 findings |
+| `security` | Security scan findings, false positives |
+| `standards` | ADR compliance, architecture patterns |
+
+### Memory types
+
+| Type | When |
+|------|------|
+| `fact` | Verified technical fact (API behavior, config requirement) |
+| `pattern` | Recurring code or process pattern |
+| `decision` | Architectural or design choice with rationale |
+| `mistake` | What went wrong and how to avoid it |
+| `achievement` | Completed work worth remembering |
+| `observation` | Something noticed that might matter later |
+
+## Rules
+
+- Never start a session with 0 brain interactions
+- Never end a session without saving what you learned
+- Never ignore recalled context — give feedback on every memory
+- If brain is unavailable (MCP disconnected), report the error — don't silently skip
