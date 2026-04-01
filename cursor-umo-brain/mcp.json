@@ -6,12 +6,12 @@
         "Authorization": "Bearer ${env:BRAIN_MCP_API_KEY}"
       }
     },
-    "gitlab": {
+    "gitlab-cloud-umotech": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-gitlab"],
+      "args": ["-y", "@zereight/mcp-gitlab"],
       "env": {
-        "GITLAB_PERSONAL_ACCESS_TOKEN": "${env:GITLAB_TOKEN}",
-        "GITLAB_API_URL": "${env:GITLAB_API_URL}"
+        "GITLAB_PERSONAL_ACCESS_TOKEN": "${env:GITLAB_PERSONAL_ACCESS_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.com/api/v4"
       }
     }
   }
