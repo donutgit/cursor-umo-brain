@@ -47,6 +47,31 @@ GITLAB_API_URL=https://gitlab.umo.tech/api/v4  # optional
 
 For Cursor Cloud Agents, add these in the Secrets tab.
 
+### API key via env (required for `mcp.json` interpolation)
+
+Cursor resolves **only** the documented form `${env:VAR}` in `url` and `headers` — not `${VAR}` and not shell-style `$VAR`. See [Cursor MCP — Config interpolation](https://cursor.com/docs/context/mcp#config-interpolation).
+
+The plugin’s `mcp.json` uses:
+
+- `"Authorization": "Bearer ${env:BRAIN_MCP_API_KEY}"`
+
+**Important:** On macOS/Linux, **GUI Cursor does not load `~/.zshrc`**. Exporting the key only in zsh leaves the IDE process without `BRAIN_MCP_API_KEY`, so interpolation expands to empty and brain-mcp returns `missing_token`.
+
+Set the variable where the **Cursor app** inherits it, for example:
+
+- **macOS:** `~/.zshenv` (loaded for non-interactive contexts), or launch Cursor from a terminal where the var is set, or set a user-level env via your org’s MDM / `launchctl` (see Apple docs for `LaunchAgents` / environment).
+- **Linux (desktop):** `~/.profile`, systemd user environment, or `/etc/environment` — whichever applies to how you start Cursor.
+- **Override:** Duplicate the same `headers` block in **`~/.cursor/mcp.json`** (global) or **`.cursor/mcp.json`** (project) after confirming `${env:BRAIN_MCP_API_KEY}` works in **Output → MCP** (no empty Bearer).
+
+After changing env vars, restart Cursor or **MCP: Restart All MCP Servers**.
+
+### OAuth (Google) vs API key
+
+- **Bearer API key:** brain-mcp validates the plaintext key against configured API key hashes — use `${env:BRAIN_MCP_API_KEY}` as above.
+- **OAuth:** Cursor follows MCP OAuth discovery against `https://mcp.umo.dev`. The access token sent to `/mcp` must be one **brain-mcp accepts** (DAVID **control-auth** JWT with audience `david-mcp`, per internal OAuth flow — see `docs/modules/knowledge/guides/mcp-client-setup.md`). If you see **“OAuth tokens saved”** then **401**, Cursor completed a browser login but the token is not accepted by brain-mcp (wrong issuer/audience, or exchange failed). That is resolved on the **DAVID auth / brain-mcp** side (redirect URI `cursor://anysphere.cursor-mcp/oauth/callback` registered in the OAuth client, token endpoint issuing the expected JWT). API key auth does not depend on that path.
+
+Using a **static `Authorization` header** (API key) is the supported path for Cursor until OAuth end-to-end is verified against production control-auth.
+
 ## Install
 
 ### Team marketplace (recommended — applies to all team members)
