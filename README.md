@@ -10,11 +10,24 @@ DAVID agent harness for Cursor — organizational memory, MR review (four person
 
 | | |
 |--|--|
-| **Rules** | `brain-harness` (recall / remember / feedback), `hard-rules` (TS guardrails) — `alwaysApply` |
+| **Rules** | `brain-harness` (trigger-based recall, mandatory feedback, capability-aware writeback), `hard-rules` (TS guardrails) — `alwaysApply` |
 | **MR review** | `/mr-code-review`, `/mr-compliance-audit`, `/mr-security-scan`, `/mr-standards-guard`, `/mr-review-orchestrator` |
 | **Entry points** | `@mr-reviewer`, `/review-mr <project> <iid>` |
 
 Skills and commands work in **any** repo once the plugin is installed — no per-project `.cursor` needed.
+
+---
+
+## How brain-harness works
+
+The bundled `brain-harness` rule is designed to keep agent attention on DAVID brain without bloating the prompt:
+
+- **Session start:** do a small, task-specific `david_recall`
+- **During work:** recall again only at high-value triggers such as unfamiliar code, design choices, or repeated failure
+- **After every recall:** run `david_feedback` on returned memories
+- **Writeback:** use `david_remember` only for durable learnings, and handle permission failures explicitly rather than pretending a save succeeded
+
+It is intentionally **tool-first** and **just-in-time**. Brain is treated as long-term memory, not as a scratchpad or a giant prompt dump.
 
 ---
 
