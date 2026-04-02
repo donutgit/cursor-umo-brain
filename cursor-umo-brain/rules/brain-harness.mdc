@@ -7,151 +7,102 @@ alwaysApply: true
 
 You have access to DAVID brain — a persistent organizational memory shared across teams, repos, and sessions. Use it as **long-term memory**, not as a scratchpad.
 
-Treat model attention as finite:
+Brain MCP exposes **tools** (dynamic actions), **prompts** (packaged workflows via `prompts/get`), and **resources** (stable policy via `resources/read` on `brain://reference/*`). When you need reference details — memory types, namespace list, role matrix, prompt names — read the resource instead of guessing. This rule covers behavior policy only.
 
-- keep recall focused and small,
-- retrieve memory just in time,
-- give feedback on every recalled memory,
-- and save only durable learnings.
+## Session start
 
-## Session start (do this first)
-
-Before any work, recall context relevant to the current task:
+1. **`david_whoami`** — see your role, allowed tools, session mode.
+2. **`david_recall`** — orient with a broad query. Goal is **orientation**, not precision:
 
 ```
-david_recall(
-  query: "recent decisions and open context for [repo, project, or task topic]",
-  limit: 5,
-  namespace: "<domain if known>"
-)
+david_recall(query: "recent decisions and open context for [repo or task]", limit: 5, namespace: "<domain>")
 ```
 
-After every recall, give feedback on each returned memory:
+3. **`david_feedback`** on every returned memory — this is mandatory, not optional.
 
-```
-david_feedback(memory_id, helpful: true/false)
-```
+## During work
 
-## Recall triggers (use these during work)
+Recall again only at **high-value triggers** — not every turn:
 
-Recall again when any of these happens:
+- Before a design or architecture decision (query: narrow, decision-focused)
+- Before touching unfamiliar code (query: module/file name)
+- After the second failed attempt (query: exact error message)
+- At the end of a milestone (save what you learned)
 
-- Before a design or architecture decision
-- Before touching unfamiliar code or modules
-- After the second failed attempt on a bug or task
-- When a recalled memory looks incomplete, stale, or contradictory
+In-task recall is **decision support**, not re-orientation. Use narrower queries than session start.
 
-Use a **full-sentence query**, not keywords:
+## Working memory vs long-term memory
 
-```
-david_recall("known issues and patterns for [module or task]")
-david_recall("[option A] vs [option B] in [project or domain]")
-david_recall("[exact error message or symptom]")
-```
+Brain is for **durable knowledge** — facts, patterns, decisions, mistakes, achievements.
 
-## Recall quality rules
+For **working memory** (current-turn state, in-flight plans, intermediate results) use local context: task notes, scratchpad files, or short-lived variables. Do not dump working state into `david_remember`.
 
-Prefer small, high-signal recall:
+## Context hygiene
+
+In long sessions, old recall results accumulate in context and crowd out fresh retrieval. When you notice context growing:
+
+- Do not keep stale recall outputs around — their value decays after a few turns.
+- Prefer a new, focused recall over re-reading old recall results.
+- If the host supports context compaction or tool-result clearing, use it.
+
+## Recall quality
 
 - Use `namespace` when you know the domain
-- Prefer `limit: 3-5` unless the task truly needs more
-- Use `max_chars` to keep results tight when helpful
-- Retry with a more specific query before broadening the search
-- If recall is unexpectedly empty, retry with the exact error text, file/module name, or `min_confidence: 0`
+- Prefer `limit: 3-5`; use `max_chars` to keep results tight
+- Use full-sentence queries, not keywords
+- If recall is empty, retry with exact error text, file name, or `min_confidence: 0`
+- Low-scoring vector results automatically fall back to **full-text search**
 
-Check whether the org already solved the problem. Don't reinvent by default.
+### Parameter names (do not confuse)
 
-## What Brain is for
+| Parameter | Tool | Meaning |
+|-----------|------|---------|
+| **`memory_scope`** | `david_recall` | Tier filter: `session`, `long_term`, `shared`. Deprecated alias: `scope` |
+| **`memory_space`** | recall / remember | Four-tier: `self`, `knowledge`, `episodic`, `operational` |
+| **`domain_scope`** | `david_remember` | Sub-scope within namespace. Deprecated alias: `scope` |
 
-Use Brain for **durable knowledge**:
+Do not set both preferred and deprecated names to different values — the server errors. Omitting `memory_space` defaults sensibly (observation/tension → `operational`; most others → `knowledge`).
 
-- prior decisions,
-- recurring patterns,
-- known mistakes,
-- incidents,
-- stable facts worth reusing later.
+## Writeback
 
-Do **not** use Brain for:
-
-- step-by-step scratch work,
-- raw tool output dumps,
-- large documents copied verbatim,
-- transient notes that only matter for the current few minutes.
-
-## After meaningful work
-
-Save what you learned so the next session (yours or someone else's) benefits:
+Save what you learned so the next session benefits:
 
 ```
 david_remember({
-  type: "<fact|pattern|decision|mistake|achievement|incident|insight|opinion|compliance>",
-  title: "Descriptive sentence — not a keyword",
-  content: "What happened, what was decided, what was learned, and why it matters",
+  type: "<see brain://reference/memory-quality for the 11 types>",
+  title: "Descriptive sentence (trimmed ≥ 3 chars)",
+  content: "What, why, and what it means for future work (trimmed ≥ 10 chars)",
   namespace: "<domain>",
   context: { ... }
 })
 ```
 
-Write back only when the learning is likely to matter in a future session.
+The server enforces a **write-time quality gate** — too-short values are rejected with a fix message. Omitting `namespace` defaults to `global` with a warning.
 
-### Capability-aware writeback
+Write back only when the learning is likely to matter in a future session. If you saved 3+ observations in one session, consider whether they form a single `pattern` or `insight` worth consolidating.
 
-`david_recall` is widely available, but `david_remember` may require higher privileges than the current caller has.
+### Promotion (server-side)
 
-If `david_remember` fails with a permission error:
+Operational memories that receive **3 cumulative helpful** feedback rows promote to `knowledge` automatically. You don't need to do anything — feedback drives it.
 
-- report that writeback was not permitted,
-- do not pretend the memory was saved,
-- do not retry in a loop,
-- continue the task with recall/feedback if those are still available.
+### Permission failures
 
-### Namespace conventions
+`david_remember` requires **service** role or above. If it fails with a permission error: report it, do not pretend it succeeded, do not retry in a loop, continue with recall/feedback.
 
-| Namespace | Domain |
-|-----------|--------|
-| `global` | Company-wide: architecture, cross-cutting patterns |
-| `david` | DAVID platform project |
-| `payments` | Payment processing, PSPs, settlement |
-| `crypto` | Crypto exchange, wallets, DeFi |
-| `banking` | Core banking, ledger, accounting |
-| `devops` | Infrastructure, Kubernetes, platform |
-| `code-review` | Code review findings and patterns |
-| `compliance` | VARA, ISO 27001, SOC 2 findings |
-| `security` | Security scan findings, false positives |
-| `standards` | ADR compliance, architecture patterns |
+## Invalidation
 
-### Memory types
-
-| Type | When |
-|------|------|
-| `fact` | Verified technical fact (API behavior, config requirement) |
-| `pattern` | Recurring code or process pattern |
-| `decision` | Architectural or design choice with rationale |
-| `mistake` | What went wrong and how to avoid it |
-| `incident` | Operational issue, outage, or reliability lesson |
-| `insight` | Higher-level lesson synthesized from several facts |
-| `opinion` | Human or team judgment worth preserving as context |
-| `compliance` | Regulatory or audit-relevant guidance |
-| `achievement` | Completed work worth remembering |
-
-Prefer descriptive titles and include enough context that a future recall can rank the memory correctly.
-
-## Invalidating stale knowledge
-
-If a recalled memory is wrong, outdated, or superseded, prefer explicit invalidation:
+If a recalled memory is wrong or stale:
 
 ```
 david_invalidate(memory_id, reason: "why it is stale or incorrect")
 ```
 
-This keeps future recall cleaner than silently working around bad memory.
-
 ## Rules
 
 - Never start a session with 0 brain interactions
-- Never ignore recalled context — give feedback on every memory
-- Keep recall tight — don't dump large memory blocks into context
+- Give feedback on every recalled memory
+- Keep recall tight — don't dump large blocks into context
 - Prefer trigger-based recall over constant recall
 - Save only durable learnings — not scratch work
-- If brain is unavailable (MCP disconnected), report the error — don't silently skip
-- If recall or write behavior seems broken, surface the failure and use `david_health` when appropriate
+- Use local context for working memory, Brain for long-term memory
+- If brain is unavailable, report the error — don't silently skip

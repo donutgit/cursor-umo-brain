@@ -22,10 +22,15 @@ Skills and commands work in **any** repo once the plugin is installed — no per
 
 The bundled `brain-harness` rule is designed to keep agent attention on DAVID brain without bloating the prompt:
 
-- **Session start:** do a small, task-specific `david_recall`
-- **During work:** recall again only at high-value triggers such as unfamiliar code, design choices, or repeated failure
-- **After every recall:** run `david_feedback` on returned memories
-- **Writeback:** use `david_remember` only for durable learnings, and handle permission failures explicitly rather than pretending a save succeeded
+- **Session start:** `david_whoami` (role, allowed tools, session mode, distill readiness) then `david_recall` then `david_feedback` on every returned memory
+- **Three MCP surfaces:** **tools** for dynamic actions, **prompts** (`brain.start-task`, `brain.capture-learning`, etc.) for packaged workflows, **resources** (`brain://reference/*`) for stable policy markdown — see rule for full tables
+- **Parameters:** `memory_scope` (tier filter on recall) vs `memory_space` (four-tier: self / knowledge / episodic / operational) vs `domain_scope` on remember — deprecated `scope` alias with conflict detection
+- **During work:** recall again only at high-value triggers (unfamiliar code, design choices, repeated failure)
+- **Structured recall output:** markdown + fenced JSON block with ids, scores, types, spaces for programmatic follow-up
+- **After every recall:** `david_feedback` on returned memories; operational memories **promote** to knowledge after 3 cumulative helpful rows (server-side)
+- **Writeback:** `david_remember` (11 types incl. `observation`/`tension`) only for durable learnings; write-time **quality gate** rejects too-short titles/content; namespace default to `global` returns a warning; handle permission failures explicitly
+- **Session mode:** agent JWTs carry a risk budget (`autonomous`/`supervised`/`propose`/`unrestricted`); `david_whoami` exposes the effective mode
+- **Consolidation (admin):** `david_consolidate` deduplicates within same namespace and `memory_space`
 
 It is intentionally **tool-first** and **just-in-time**. Brain is treated as long-term memory, not as a scratchpad or a giant prompt dump.
 
@@ -35,10 +40,10 @@ It is intentionally **tool-first** and **just-in-time**. Brain is treated as lon
 
 1. Open **Cursor**
 2. **Settings** → **Plugins** (or **Marketplace** / **Plugins** in the sidebar)
-3. Find **cursor-umo-brain** (or your team’s marketplace bundle, e.g. **umo-cursor-plugins**)
+3. Find **cursor-umo-brain** (or your team's marketplace bundle, e.g. **umo-cursor-plugins**)
 4. **Install** / enable → **Developer: Reload Window** or restart Cursor  
 
-If it’s not listed, ask your team how the plugin is shipped.
+If it's not listed, ask your team how the plugin is shipped.
 
 ---
 
@@ -61,7 +66,7 @@ MCP server id: **`gitlab-cloud-umotech`** (`@zereight/mcp-gitlab`). Bundled `mcp
 1. **[gitlab.com → Personal access tokens](https://gitlab.com/-/user_settings/personal_access_tokens)** (or **avatar → Preferences → Access Tokens**)
 2. New token — name (e.g. `cursor-mcp`), expiry
 3. Scopes: **`api`**
-4. Create → **copy once** (GitLab won’t show it again)
+4. Create → **copy once** (GitLab won't show it again)
 5. Set **`GITLAB_PERSONAL_ACCESS_TOKEN`** in the same places as the brain key ([macOS](#macos-api-keys-for-cursor))
 
 Revoke/rotate on that page if it leaks.
@@ -76,7 +81,7 @@ Revoke/rotate on that page if it leaks.
 
 ## macOS: API keys for Cursor
 
-This plugin’s `mcp.json` uses **`${env:VAR}`** for secrets. Cursor expands that from the environment — see [MCP](https://cursor.com/docs/context/mcp) and [Config interpolation](https://cursor.com/docs/context/mcp#config-interpolation).
+This plugin's `mcp.json` uses **`${env:VAR}`** for secrets. Cursor expands that from the environment — see [MCP](https://cursor.com/docs/context/mcp) and [Config interpolation](https://cursor.com/docs/context/mcp#config-interpolation).
 
 | Variable | Role |
 |----------|------|
@@ -97,7 +102,7 @@ This plugin’s `mcp.json` uses **`${env:VAR}`** for secrets. Cursor expands tha
 
 ### Other setups (Remote SSH, Linux, Windows, cloud agents, …)
 
-We only document **macOS + `~/.zshenv`** above. For anything else, use **Cursor’s documentation** — start here:
+We only document **macOS + `~/.zshenv`** above. For anything else, use **Cursor's documentation** — start here:
 
 - **[Model Context Protocol (MCP)](https://cursor.com/docs/context/mcp)** — configuration, tools, troubleshooting  
 - **[Config interpolation](https://cursor.com/docs/context/mcp#config-interpolation)** — `${env:VAR}` and how Cursor resolves it  
