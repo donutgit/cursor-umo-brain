@@ -1,0 +1,39 @@
+{
+  "name": "cursor-umo-brain",
+  "version": "0.1.0",
+  "description": "DAVID agent harness with brain-first memory protocol, MR review personas, and GitLab integration.",
+  "author": {
+    "name": "UMO Platform Team",
+    "email": "platform@umo.tech"
+  },
+  "keywords": [
+    "david",
+    "brain",
+    "memory",
+    "code-review",
+    "compliance",
+    "security",
+    "gitlab",
+    "organizational-memory"
+  ],
+  "license": "UNLICENSED",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Cursor UMO Brain",
+    "shortDescription": "Brain-first DAVID harness for MR workflows.",
+    "longDescription": "Shared plugin package for Cursor and Codex with DAVID brain workflow, MR review personas, and GitLab integration.",
+    "developerName": "UMO Platform Team",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Recall recent DAVID context before implementation.",
+      "Run MR review personas and summarize findings.",
+      "Check compliance and security risks in this change."
+    ],
+    "brandColor": "#1F6FEB"
+  }
+}

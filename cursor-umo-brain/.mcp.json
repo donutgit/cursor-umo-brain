@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "david-brain": {
+      "url": "https://mcp.umo.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:BRAIN_MCP_API_KEY}"
+      }
+    },
+    "gitlab-cloud-umotech": {
+      "command": "npx",
+      "args": ["-y", "@zereight/mcp-gitlab"],
+      "env": {
+        "GITLAB_PERSONAL_ACCESS_TOKEN": "${env:GITLAB_PERSONAL_ACCESS_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.com/api/v4"
+      }
+    }
+  }
+}
